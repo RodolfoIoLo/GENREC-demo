@@ -1,0 +1,32 @@
+# ---------- 数据 ----------
+# 仓库里不放真实数据，只放 data/README.md（说明每个文件是什么、有什么用）。
+# 真实数据在服务器 /data/zby/data/ 下，不进仓库。
+# 这些规则用 / 开头锚定到仓库根，不会误伤 results/ 下的同名文件。
+/data/raw/
+/data/processed/
+/data/*.dat
+/data/*.jsonl
+/data/*.inter
+/data/*.zip
+/data/user_id_map.json
+/data/item_id_map.json
+/data/item_text.json
+/data/preprocess_log.json
+
+# ---------- 训练产物 ----------
+saved/
+*.pth
+log_tensorboard/
+log/
+
+# ---------- Python ----------
+__pycache__/
+*.py[cod]
+*.egg-info/
+.ipynb_checkpoints/
+
+# ---------- 编辑器 / 系统 ----------
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

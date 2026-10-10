@@ -1,0 +1,46 @@
+# ---------- 数据 ----------
+data_path: /data/zby/data/recbole
+dataset: ml-1m
+USER_ID_FIELD: userID
+ITEM_ID_FIELD: itemID
+TIME_FIELD: timestamp
+load_col:
+    inter: [userID, itemID, timestamp]
+# 5-core 已在 preprocess.py 里迭代收敛，这里是幂等的（重复过滤不会改变任何东西）
+filter_inter_by_user_or_item: True
+user_inter_num_interval: "[5,inf)"
+item_inter_num_interval: "[5,inf)"
+
+# ---------- 序列 ----------
+MAX_ITEM_LIST_LENGTH: 200
+ITEM_LIST_LENGTH_FIELD: item_length   # 记录每条序列的真实长度，模型靠它做 mask
+LIST_SUFFIX: _list                    # 序列字段后缀（item_id_list）
+
+# ---------- 训练 ----------
+epochs: 300
+train_batch_size: 2048
+learner: adam
+learning_rate: 0.001
+loss_type: CE
+train_neg_sample_args: ~        # CE 口径不需要负采样
+eval_step: 1
+stopping_step: 10
+
+# ---------- 评测 ----------
+eval_args:
+    split: {'LS': 'valid_and_test'}     # LS = leave-one-out；最后两个交互分别做 valid / test
+    group_by: user                      # 按用户分组，全量排序
+    order: TO                           # 时间序（必须配合 TIME_FIELD）
+    mode: {'valid': 'full', 'test': 'full'}   # full = 对全部物品排序
+metrics: ['Recall', 'NDCG']
+topk: [5, 10]
+valid_metric: NDCG@10
+eval_batch_size: 4096
+
+# ---------- 复现 ----------
+seed: 42
+reproducibility: True
+
+# ---------- 环境 ----------
+gpu_id: 0
+use_gpu: True

@@ -1,0 +1,23 @@
+{
+  "n_users": 6040,
+  "n_items": 3416,
+  "n_interactions": 999611,
+  "avg_seq_len": 165.5,
+  "median_seq_len": 96,
+  "p90_seq_len": 400,
+  "max_seq_len": 2277,
+  "min_seq_len": 18,
+  "sparsity": 0.951552,
+  "item_freq_max": 3428,
+  "item_freq_median": 146,
+  "item_freq_p90": 765,
+  "item_gini": 0.6034,
+  "items_le10_ratio": 0.0536,
+  "items_le20_ratio": 0.1186,
+  "items_le50_ratio": 0.2684,
+  "top1pct_item_inter_ratio": 0.0819,
+  "top10pct_item_inter_ratio": 0.4231,
+  "time_min": "2000-04-25 23:05:32",
+  "time_max": "2003-02-28 17:49:50",
+  "dataset": "ml-1m"
+}

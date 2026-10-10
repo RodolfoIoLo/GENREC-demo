@@ -1,0 +1,20 @@
+{
+  "dataset": "ml-1m",
+  "k_core": 5,
+  "seed": 42,
+  "raw": {
+    "users": 6040,
+    "items": 3706,
+    "interactions": 1000209
+  },
+  "after_kcore": {
+    "users": 6040,
+    "items": 3416,
+    "interactions": 999611
+  },
+  "split": {
+    "train": 987531,
+    "valid": 6040,
+    "test": 6040
+  }
+}
