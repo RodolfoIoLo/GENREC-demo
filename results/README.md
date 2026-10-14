@@ -102,7 +102,7 @@ Loss/Train    43 个点    3362.31 → 2721.19
 Vaild_score   43 个点    0.0649  → 0.1274
 ```
 
-43 个点 = 43 个 epoch。（`Vaild` 是 RecBole 源码里的拼写错误，不是我们打错的。）
+43 个点 = 43 个 epoch。
 
 **怎么看**：`tensorboard --logdir log_tensorboard --port 6006`，再开 SSH 端口转发到本地，浏览器访问 `localhost:6006`。
 

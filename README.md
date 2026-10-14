@@ -63,7 +63,7 @@ repository/
     ├── week0-生成式推荐_三阶段全链路.md
     ├── week1-真实数据实例说明.md
     ├── week2-前置知识-RecBole与基线模型.md
-    └── 09-15.md … 09-27.md
+    └── 日志...
 ```
 
 **文档导航**
@@ -73,7 +73,7 @@ repository/
 | 数据每个文件是什么、字段什么意思、被谁读谁写 | [`data/README.md`](data/README.md) |
 | 结果文件是哪个脚本跑出来的 | [`results/README.md`](results/README.md) |
 | 那些没进仓库的文件长什么样 | [`results/samples.md`](results/samples.md) |
-| 我学习时踩过的坑 | [`note/`](note/) |
+| 学习笔记 | [`note/`](note/) |
 | 服务器上到底有哪些目录和文件 | 本文件 §6 |
 
 ---
@@ -142,7 +142,7 @@ pip check
 | 随机种子 | 42 |
 | ID 处理 | 重映射为 0..N−1 连续整数 |
 
-### 3.2 训练 / 评测层（第 2 周追加）
+### 3.2 训练 / 评测层（第 2 周确定）
 
 | 项 | 取值 |
 |---|---|
