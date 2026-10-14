@@ -251,14 +251,13 @@ ln -s /data/zby/data/ml-1m/processed /data/zby/data/recbole/ml-1m
 ├── requirements.txt                                         4.0K
 ├── log/SASRec/                       ← RecBole 自写的干净日志（入库的就是这里面的）
 │   ├── SASRec-ml-1m-Sep-28-2026_19-17-25-dbfc42.log          20K  ← 已入库
-│   ├── SASRec-ml-1m-Oct-10-2026_15-53-50-dbfc42.log         4.0K
 │   └── SASRec-ml-1m-Oct-10-2026_15-55-25-dbfc42.log         8.0K  ← 已入库
 ├── results/                          ← tee 出来的原始日志（不入库）
 │   ├── sasrec_0928_1916.log                                 5.0M  ← 被 tqdm 的 \r 刷过
 │   └── eval_only_1010.log                                   8.0K
 ├── saved/
 │   └── SASRec-Sep-28-2026_19-18-04.pth                      3.9M  ← best epoch 31 的权重
-└── log_tensorboard/                  ← 空（未启用）
+└── log_tensorboard/...
 ```
 
 ### 6.2 数据 `/data/zby/data/`
