@@ -1,0 +1,442 @@
+Thu 15 Oct 2026 09:39:08 INFO  ['scripts/run_baseline.py', '--model', 'GRU4Rec', '--seed', '42']
+Thu 15 Oct 2026 09:39:08 INFO  
+General Hyper Parameters:
+gpu_id = 0
+use_gpu = True
+seed = 42
+state = INFO
+reproducibility = True
+data_path = /data/zby/data/recbole/ml-1m
+checkpoint_dir = saved
+show_progress = True
+save_dataset = False
+dataset_save_path = None
+save_dataloaders = False
+dataloaders_save_path = None
+log_wandb = False
+
+Training Hyper Parameters:
+epochs = 300
+train_batch_size = 2048
+learner = adam
+learning_rate = 0.001
+train_neg_sample_args = {'distribution': 'none', 'sample_num': 'none', 'alpha': 'none', 'dynamic': False, 'candidate_num': 0}
+eval_step = 1
+stopping_step = 10
+clip_grad_norm = None
+weight_decay = 0.0
+loss_decimal_place = 4
+
+Evaluation Hyper Parameters:
+eval_args = {'split': {'LS': 'valid_and_test'}, 'order': 'TO', 'group_by': 'user', 'mode': {'valid': 'full', 'test': 'full'}}
+repeatable = True
+metrics = ['Recall', 'NDCG']
+topk = [5, 10]
+valid_metric = NDCG@10
+valid_metric_bigger = True
+eval_batch_size = 4096
+metric_decimal_place = 4
+
+Dataset Hyper Parameters:
+field_separator = 	
+seq_separator =  
+USER_ID_FIELD = userID
+ITEM_ID_FIELD = itemID
+RATING_FIELD = rating
+TIME_FIELD = timestamp
+seq_len = None
+LABEL_FIELD = label
+threshold = None
+NEG_PREFIX = neg_
+load_col = {'inter': ['userID', 'itemID', 'timestamp']}
+unload_col = None
+unused_col = None
+additional_feat_suffix = None
+rm_dup_inter = None
+val_interval = None
+filter_inter_by_user_or_item = True
+user_inter_num_interval = [5,inf)
+item_inter_num_interval = [5,inf)
+alias_of_user_id = None
+alias_of_item_id = None
+alias_of_entity_id = None
+alias_of_relation_id = None
+preload_weight = None
+normalize_field = None
+normalize_all = None
+ITEM_LIST_LENGTH_FIELD = item_length
+LIST_SUFFIX = _list
+MAX_ITEM_LIST_LENGTH = 200
+POSITION_FIELD = position_id
+HEAD_ENTITY_ID_FIELD = head_id
+TAIL_ENTITY_ID_FIELD = tail_id
+RELATION_ID_FIELD = relation_id
+ENTITY_ID_FIELD = entity_id
+benchmark_filename = None
+
+Other Hyper Parameters: 
+worker = 0
+wandb_project = recbole
+shuffle = True
+require_pow = False
+enable_amp = False
+enable_scaler = False
+transform = None
+embedding_size = 64
+hidden_size = 128
+num_layers = 1
+dropout_prob = 0.3
+loss_type = CE
+numerical_features = []
+discretization = None
+kg_reverse_r = False
+entity_kg_num_interval = [0,inf)
+relation_kg_num_interval = [0,inf)
+MODEL_TYPE = ModelType.SEQUENTIAL
+MODEL_INPUT_TYPE = InputType.POINTWISE
+eval_type = EvaluatorType.RANKING
+single_spec = True
+local_rank = 0
+device = cuda
+valid_neg_sample_args = {'distribution': 'uniform', 'sample_num': 'none'}
+test_neg_sample_args = {'distribution': 'uniform', 'sample_num': 'none'}
+
+
+Thu 15 Oct 2026 09:39:13 INFO  ml-1m
+The number of users: 6041
+Average actions of users: 165.49850993377484
+The number of items: 3417
+Average actions of items: 292.6261709601874
+The number of inters: 999611
+The sparsity of the dataset: 95.15741545057172%
+Remain Fields: ['userID', 'itemID', 'timestamp']
+Thu 15 Oct 2026 09:39:35 INFO  [Training]: train_batch_size = [2048] train_neg_sample_args: [{'distribution': 'none', 'sample_num': 'none', 'alpha': 'none', 'dynamic': False, 'candidate_num': 0}]
+Thu 15 Oct 2026 09:39:35 INFO  [Evaluation]: eval_batch_size = [4096] eval_args: [{'split': {'LS': 'valid_and_test'}, 'order': 'TO', 'group_by': 'user', 'mode': {'valid': 'full', 'test': 'full'}}]
+Thu 15 Oct 2026 09:39:36 INFO  GRU4Rec(
+  (item_embedding): Embedding(3417, 64, padding_idx=0)
+  (emb_dropout): Dropout(p=0.3, inplace=False)
+  (gru_layers): GRU(64, 128, bias=False, batch_first=True)
+  (dense): Linear(in_features=128, out_features=64, bias=True)
+  (loss_fct): CrossEntropyLoss()
+)
+Trainable parameters: 300672
+Thu 15 Oct 2026 09:39:37 INFO  FLOPs: 16576064.0
+Thu 15 Oct 2026 09:40:33 INFO  epoch 0 training [time: 53.58s, train loss: 3480.1634]
+Thu 15 Oct 2026 09:40:34 INFO  epoch 0 evaluating [time: 1.23s, valid_score: 0.024700]
+Thu 15 Oct 2026 09:40:34 INFO  valid result: 
+recall@5 : 0.0278    recall@10 : 0.0515    ndcg@5 : 0.0171    ndcg@10 : 0.0247
+Thu 15 Oct 2026 09:40:34 INFO  Saving current: saved/GRU4Rec-Oct-15-2026_09-39-37.pth
+Thu 15 Oct 2026 09:41:25 INFO  epoch 1 training [time: 51.35s, train loss: 3175.4202]
+Thu 15 Oct 2026 09:41:26 INFO  epoch 1 evaluating [time: 0.14s, valid_score: 0.048900]
+Thu 15 Oct 2026 09:41:26 INFO  valid result: 
+recall@5 : 0.0566    recall@10 : 0.0982    ndcg@5 : 0.0356    ndcg@10 : 0.0489
+Thu 15 Oct 2026 09:41:26 INFO  Saving current: saved/GRU4Rec-Oct-15-2026_09-39-37.pth
+Thu 15 Oct 2026 09:42:18 INFO  epoch 2 training [time: 52.27s, train loss: 2974.0087]
+Thu 15 Oct 2026 09:42:18 INFO  epoch 2 evaluating [time: 0.12s, valid_score: 0.071200]
+Thu 15 Oct 2026 09:42:18 INFO  valid result: 
+recall@5 : 0.0834    recall@10 : 0.1439    ndcg@5 : 0.0519    ndcg@10 : 0.0712
+Thu 15 Oct 2026 09:42:18 INFO  Saving current: saved/GRU4Rec-Oct-15-2026_09-39-37.pth
+Thu 15 Oct 2026 09:43:11 INFO  epoch 3 training [time: 53.37s, train loss: 2862.3756]
+Thu 15 Oct 2026 09:43:12 INFO  epoch 3 evaluating [time: 0.17s, valid_score: 0.088700]
+Thu 15 Oct 2026 09:43:12 INFO  valid result: 
+recall@5 : 0.1048    recall@10 : 0.1758    ndcg@5 : 0.066    ndcg@10 : 0.0887
+Thu 15 Oct 2026 09:43:12 INFO  Saving current: saved/GRU4Rec-Oct-15-2026_09-39-37.pth
+Thu 15 Oct 2026 09:44:05 INFO  epoch 4 training [time: 53.02s, train loss: 2787.8582]
+Thu 15 Oct 2026 09:44:05 INFO  epoch 4 evaluating [time: 0.09s, valid_score: 0.096500]
+Thu 15 Oct 2026 09:44:05 INFO  valid result: 
+recall@5 : 0.1166    recall@10 : 0.1914    ndcg@5 : 0.0725    ndcg@10 : 0.0965
+Thu 15 Oct 2026 09:44:05 INFO  Saving current: saved/GRU4Rec-Oct-15-2026_09-39-37.pth
+Thu 15 Oct 2026 09:45:03 INFO  epoch 5 training [time: 57.88s, train loss: 2733.8095]
+Thu 15 Oct 2026 09:45:04 INFO  epoch 5 evaluating [time: 0.97s, valid_score: 0.105100]
+Thu 15 Oct 2026 09:45:04 INFO  valid result: 
+recall@5 : 0.1253    recall@10 : 0.207    ndcg@5 : 0.0788    ndcg@10 : 0.1051
+Thu 15 Oct 2026 09:45:04 INFO  Saving current: saved/GRU4Rec-Oct-15-2026_09-39-37.pth
+Thu 15 Oct 2026 09:46:01 INFO  epoch 6 training [time: 57.61s, train loss: 2695.3901]
+Thu 15 Oct 2026 09:46:01 INFO  epoch 6 evaluating [time: 0.23s, valid_score: 0.114300]
+Thu 15 Oct 2026 09:46:01 INFO  valid result: 
+recall@5 : 0.1416    recall@10 : 0.2205    ndcg@5 : 0.0888    ndcg@10 : 0.1143
+Thu 15 Oct 2026 09:46:01 INFO  Saving current: saved/GRU4Rec-Oct-15-2026_09-39-37.pth
+Thu 15 Oct 2026 09:46:57 INFO  epoch 7 training [time: 55.57s, train loss: 2666.3213]
+Thu 15 Oct 2026 09:46:57 INFO  epoch 7 evaluating [time: 0.15s, valid_score: 0.117000]
+Thu 15 Oct 2026 09:46:57 INFO  valid result: 
+recall@5 : 0.1382    recall@10 : 0.2278    ndcg@5 : 0.0881    ndcg@10 : 0.117
+Thu 15 Oct 2026 09:46:57 INFO  Saving current: saved/GRU4Rec-Oct-15-2026_09-39-37.pth
+Thu 15 Oct 2026 09:47:53 INFO  epoch 8 training [time: 55.99s, train loss: 2643.3414]
+Thu 15 Oct 2026 09:47:53 INFO  epoch 8 evaluating [time: 0.16s, valid_score: 0.122100]
+Thu 15 Oct 2026 09:47:53 INFO  valid result: 
+recall@5 : 0.1507    recall@10 : 0.2358    ndcg@5 : 0.0947    ndcg@10 : 0.1221
+Thu 15 Oct 2026 09:47:53 INFO  Saving current: saved/GRU4Rec-Oct-15-2026_09-39-37.pth
+Thu 15 Oct 2026 09:48:49 INFO  epoch 9 training [time: 56.10s, train loss: 2624.6537]
+Thu 15 Oct 2026 09:48:50 INFO  epoch 9 evaluating [time: 0.16s, valid_score: 0.126300]
+Thu 15 Oct 2026 09:48:50 INFO  valid result: 
+recall@5 : 0.1505    recall@10 : 0.2399    ndcg@5 : 0.0975    ndcg@10 : 0.1263
+Thu 15 Oct 2026 09:48:50 INFO  Saving current: saved/GRU4Rec-Oct-15-2026_09-39-37.pth
+Thu 15 Oct 2026 09:49:46 INFO  epoch 10 training [time: 56.84s, train loss: 2608.8304]
+Thu 15 Oct 2026 09:49:47 INFO  epoch 10 evaluating [time: 0.22s, valid_score: 0.129000]
+Thu 15 Oct 2026 09:49:47 INFO  valid result: 
+recall@5 : 0.155    recall@10 : 0.2434    ndcg@5 : 0.1002    ndcg@10 : 0.129
+Thu 15 Oct 2026 09:49:47 INFO  Saving current: saved/GRU4Rec-Oct-15-2026_09-39-37.pth
+Thu 15 Oct 2026 09:50:38 INFO  epoch 11 training [time: 50.88s, train loss: 2595.2319]
+Thu 15 Oct 2026 09:50:38 INFO  epoch 11 evaluating [time: 0.12s, valid_score: 0.131300]
+Thu 15 Oct 2026 09:50:38 INFO  valid result: 
+recall@5 : 0.1608    recall@10 : 0.2502    ndcg@5 : 0.1025    ndcg@10 : 0.1313
+Thu 15 Oct 2026 09:50:38 INFO  Saving current: saved/GRU4Rec-Oct-15-2026_09-39-37.pth
+Thu 15 Oct 2026 09:51:21 INFO  epoch 12 training [time: 42.90s, train loss: 2583.9803]
+Thu 15 Oct 2026 09:51:21 INFO  epoch 12 evaluating [time: 0.11s, valid_score: 0.134200]
+Thu 15 Oct 2026 09:51:21 INFO  valid result: 
+recall@5 : 0.1662    recall@10 : 0.2545    ndcg@5 : 0.1057    ndcg@10 : 0.1342
+Thu 15 Oct 2026 09:51:21 INFO  Saving current: saved/GRU4Rec-Oct-15-2026_09-39-37.pth
+Thu 15 Oct 2026 09:52:18 INFO  epoch 13 training [time: 56.85s, train loss: 2574.1519]
+Thu 15 Oct 2026 09:52:18 INFO  epoch 13 evaluating [time: 0.16s, valid_score: 0.135300]
+Thu 15 Oct 2026 09:52:18 INFO  valid result: 
+recall@5 : 0.1687    recall@10 : 0.2522    ndcg@5 : 0.1085    ndcg@10 : 0.1353
+Thu 15 Oct 2026 09:52:18 INFO  Saving current: saved/GRU4Rec-Oct-15-2026_09-39-37.pth
+Thu 15 Oct 2026 09:53:14 INFO  epoch 14 training [time: 56.43s, train loss: 2564.5249]
+Thu 15 Oct 2026 09:53:14 INFO  epoch 14 evaluating [time: 0.15s, valid_score: 0.136700]
+Thu 15 Oct 2026 09:53:14 INFO  valid result: 
+recall@5 : 0.1656    recall@10 : 0.2563    ndcg@5 : 0.1074    ndcg@10 : 0.1367
+Thu 15 Oct 2026 09:53:14 INFO  Saving current: saved/GRU4Rec-Oct-15-2026_09-39-37.pth
+Thu 15 Oct 2026 09:54:10 INFO  epoch 15 training [time: 56.07s, train loss: 2556.7701]
+Thu 15 Oct 2026 09:54:11 INFO  epoch 15 evaluating [time: 0.16s, valid_score: 0.136700]
+Thu 15 Oct 2026 09:54:11 INFO  valid result: 
+recall@5 : 0.1636    recall@10 : 0.2588    ndcg@5 : 0.106    ndcg@10 : 0.1367
+Thu 15 Oct 2026 09:54:11 INFO  Saving current: saved/GRU4Rec-Oct-15-2026_09-39-37.pth
+Thu 15 Oct 2026 09:55:07 INFO  epoch 16 training [time: 56.83s, train loss: 2549.3636]
+Thu 15 Oct 2026 09:55:08 INFO  epoch 16 evaluating [time: 0.16s, valid_score: 0.138500]
+Thu 15 Oct 2026 09:55:08 INFO  valid result: 
+recall@5 : 0.1697    recall@10 : 0.254    ndcg@5 : 0.1113    ndcg@10 : 0.1385
+Thu 15 Oct 2026 09:55:08 INFO  Saving current: saved/GRU4Rec-Oct-15-2026_09-39-37.pth
+Thu 15 Oct 2026 09:56:02 INFO  epoch 17 training [time: 54.87s, train loss: 2542.4354]
+Thu 15 Oct 2026 09:56:03 INFO  epoch 17 evaluating [time: 0.16s, valid_score: 0.140900]
+Thu 15 Oct 2026 09:56:03 INFO  valid result: 
+recall@5 : 0.1727    recall@10 : 0.2621    ndcg@5 : 0.1121    ndcg@10 : 0.1409
+Thu 15 Oct 2026 09:56:03 INFO  Saving current: saved/GRU4Rec-Oct-15-2026_09-39-37.pth
+Thu 15 Oct 2026 09:56:58 INFO  epoch 18 training [time: 55.72s, train loss: 2536.9625]
+Thu 15 Oct 2026 09:56:59 INFO  epoch 18 evaluating [time: 0.13s, valid_score: 0.143400]
+Thu 15 Oct 2026 09:56:59 INFO  valid result: 
+recall@5 : 0.1757    recall@10 : 0.2671    ndcg@5 : 0.1139    ndcg@10 : 0.1434
+Thu 15 Oct 2026 09:56:59 INFO  Saving current: saved/GRU4Rec-Oct-15-2026_09-39-37.pth
+Thu 15 Oct 2026 09:57:52 INFO  epoch 19 training [time: 53.61s, train loss: 2531.0497]
+Thu 15 Oct 2026 09:57:52 INFO  epoch 19 evaluating [time: 0.15s, valid_score: 0.141900]
+Thu 15 Oct 2026 09:57:52 INFO  valid result: 
+recall@5 : 0.1748    recall@10 : 0.2627    ndcg@5 : 0.1136    ndcg@10 : 0.1419
+Thu 15 Oct 2026 09:58:41 INFO  epoch 20 training [time: 48.98s, train loss: 2526.3243]
+Thu 15 Oct 2026 09:58:41 INFO  epoch 20 evaluating [time: 0.19s, valid_score: 0.143600]
+Thu 15 Oct 2026 09:58:41 INFO  valid result: 
+recall@5 : 0.1732    recall@10 : 0.2667    ndcg@5 : 0.1136    ndcg@10 : 0.1436
+Thu 15 Oct 2026 09:58:41 INFO  Saving current: saved/GRU4Rec-Oct-15-2026_09-39-37.pth
+Thu 15 Oct 2026 09:59:38 INFO  epoch 21 training [time: 56.80s, train loss: 2521.3090]
+Thu 15 Oct 2026 09:59:38 INFO  epoch 21 evaluating [time: 0.11s, valid_score: 0.145800]
+Thu 15 Oct 2026 09:59:38 INFO  valid result: 
+recall@5 : 0.1767    recall@10 : 0.2682    ndcg@5 : 0.1163    ndcg@10 : 0.1458
+Thu 15 Oct 2026 09:59:38 INFO  Saving current: saved/GRU4Rec-Oct-15-2026_09-39-37.pth
+Thu 15 Oct 2026 10:00:35 INFO  epoch 22 training [time: 56.20s, train loss: 2516.6624]
+Thu 15 Oct 2026 10:00:35 INFO  epoch 22 evaluating [time: 0.17s, valid_score: 0.147300]
+Thu 15 Oct 2026 10:00:35 INFO  valid result: 
+recall@5 : 0.1762    recall@10 : 0.2709    ndcg@5 : 0.1168    ndcg@10 : 0.1473
+Thu 15 Oct 2026 10:00:35 INFO  Saving current: saved/GRU4Rec-Oct-15-2026_09-39-37.pth
+Thu 15 Oct 2026 10:01:29 INFO  epoch 23 training [time: 54.34s, train loss: 2512.9510]
+Thu 15 Oct 2026 10:01:29 INFO  epoch 23 evaluating [time: 0.16s, valid_score: 0.147000]
+Thu 15 Oct 2026 10:01:29 INFO  valid result: 
+recall@5 : 0.1798    recall@10 : 0.2697    ndcg@5 : 0.118    ndcg@10 : 0.147
+Thu 15 Oct 2026 10:02:25 INFO  epoch 24 training [time: 55.96s, train loss: 2509.3171]
+Thu 15 Oct 2026 10:02:25 INFO  epoch 24 evaluating [time: 0.17s, valid_score: 0.149600]
+Thu 15 Oct 2026 10:02:25 INFO  valid result: 
+recall@5 : 0.1811    recall@10 : 0.2757    ndcg@5 : 0.1191    ndcg@10 : 0.1496
+Thu 15 Oct 2026 10:02:25 INFO  Saving current: saved/GRU4Rec-Oct-15-2026_09-39-37.pth
+Thu 15 Oct 2026 10:03:20 INFO  epoch 25 training [time: 54.86s, train loss: 2505.4798]
+Thu 15 Oct 2026 10:03:20 INFO  epoch 25 evaluating [time: 0.12s, valid_score: 0.151100]
+Thu 15 Oct 2026 10:03:20 INFO  valid result: 
+recall@5 : 0.1838    recall@10 : 0.2745    ndcg@5 : 0.1219    ndcg@10 : 0.1511
+Thu 15 Oct 2026 10:03:20 INFO  Saving current: saved/GRU4Rec-Oct-15-2026_09-39-37.pth
+Thu 15 Oct 2026 10:04:17 INFO  epoch 26 training [time: 56.70s, train loss: 2501.9461]
+Thu 15 Oct 2026 10:04:17 INFO  epoch 26 evaluating [time: 0.22s, valid_score: 0.148800]
+Thu 15 Oct 2026 10:04:17 INFO  valid result: 
+recall@5 : 0.1778    recall@10 : 0.2728    ndcg@5 : 0.1182    ndcg@10 : 0.1488
+Thu 15 Oct 2026 10:05:14 INFO  epoch 27 training [time: 56.34s, train loss: 2498.9633]
+Thu 15 Oct 2026 10:05:14 INFO  epoch 27 evaluating [time: 0.19s, valid_score: 0.154700]
+Thu 15 Oct 2026 10:05:14 INFO  valid result: 
+recall@5 : 0.1854    recall@10 : 0.2798    ndcg@5 : 0.1245    ndcg@10 : 0.1547
+Thu 15 Oct 2026 10:05:14 INFO  Saving current: saved/GRU4Rec-Oct-15-2026_09-39-37.pth
+Thu 15 Oct 2026 10:06:10 INFO  epoch 28 training [time: 56.42s, train loss: 2496.1829]
+Thu 15 Oct 2026 10:06:10 INFO  epoch 28 evaluating [time: 0.14s, valid_score: 0.152100]
+Thu 15 Oct 2026 10:06:10 INFO  valid result: 
+recall@5 : 0.1846    recall@10 : 0.2772    ndcg@5 : 0.1222    ndcg@10 : 0.1521
+Thu 15 Oct 2026 10:07:07 INFO  epoch 29 training [time: 56.87s, train loss: 2493.0850]
+Thu 15 Oct 2026 10:07:07 INFO  epoch 29 evaluating [time: 0.16s, valid_score: 0.150200]
+Thu 15 Oct 2026 10:07:07 INFO  valid result: 
+recall@5 : 0.1848    recall@10 : 0.2747    ndcg@5 : 0.1212    ndcg@10 : 0.1502
+Thu 15 Oct 2026 10:08:03 INFO  epoch 30 training [time: 55.65s, train loss: 2490.2576]
+Thu 15 Oct 2026 10:08:03 INFO  epoch 30 evaluating [time: 0.16s, valid_score: 0.153600]
+Thu 15 Oct 2026 10:08:03 INFO  valid result: 
+recall@5 : 0.1897    recall@10 : 0.2757    ndcg@5 : 0.1259    ndcg@10 : 0.1536
+Thu 15 Oct 2026 10:08:45 INFO  epoch 31 training [time: 42.05s, train loss: 2487.4016]
+Thu 15 Oct 2026 10:08:45 INFO  epoch 31 evaluating [time: 0.15s, valid_score: 0.153500]
+Thu 15 Oct 2026 10:08:45 INFO  valid result: 
+recall@5 : 0.1886    recall@10 : 0.2776    ndcg@5 : 0.1247    ndcg@10 : 0.1535
+Thu 15 Oct 2026 10:09:26 INFO  epoch 32 training [time: 40.48s, train loss: 2485.0976]
+Thu 15 Oct 2026 10:09:26 INFO  epoch 32 evaluating [time: 0.11s, valid_score: 0.151800]
+Thu 15 Oct 2026 10:09:26 INFO  valid result: 
+recall@5 : 0.1844    recall@10 : 0.2747    ndcg@5 : 0.1226    ndcg@10 : 0.1518
+Thu 15 Oct 2026 10:10:07 INFO  epoch 33 training [time: 40.53s, train loss: 2482.9421]
+Thu 15 Oct 2026 10:10:07 INFO  epoch 33 evaluating [time: 0.11s, valid_score: 0.153300]
+Thu 15 Oct 2026 10:10:07 INFO  valid result: 
+recall@5 : 0.1868    recall@10 : 0.2805    ndcg@5 : 0.123    ndcg@10 : 0.1533
+Thu 15 Oct 2026 10:10:48 INFO  epoch 34 training [time: 41.47s, train loss: 2480.5707]
+Thu 15 Oct 2026 10:10:48 INFO  epoch 34 evaluating [time: 0.12s, valid_score: 0.156900]
+Thu 15 Oct 2026 10:10:48 INFO  valid result: 
+recall@5 : 0.1914    recall@10 : 0.2828    ndcg@5 : 0.1275    ndcg@10 : 0.1569
+Thu 15 Oct 2026 10:10:48 INFO  Saving current: saved/GRU4Rec-Oct-15-2026_09-39-37.pth
+Thu 15 Oct 2026 10:11:29 INFO  epoch 35 training [time: 41.01s, train loss: 2478.3420]
+Thu 15 Oct 2026 10:11:29 INFO  epoch 35 evaluating [time: 0.11s, valid_score: 0.155600]
+Thu 15 Oct 2026 10:11:29 INFO  valid result: 
+recall@5 : 0.1906    recall@10 : 0.2793    ndcg@5 : 0.1272    ndcg@10 : 0.1556
+Thu 15 Oct 2026 10:12:10 INFO  epoch 36 training [time: 40.77s, train loss: 2476.7642]
+Thu 15 Oct 2026 10:12:10 INFO  epoch 36 evaluating [time: 0.14s, valid_score: 0.155500]
+Thu 15 Oct 2026 10:12:10 INFO  valid result: 
+recall@5 : 0.1904    recall@10 : 0.2795    ndcg@5 : 0.1268    ndcg@10 : 0.1555
+Thu 15 Oct 2026 10:12:51 INFO  epoch 37 training [time: 40.30s, train loss: 2474.1368]
+Thu 15 Oct 2026 10:12:51 INFO  epoch 37 evaluating [time: 0.14s, valid_score: 0.156900]
+Thu 15 Oct 2026 10:12:51 INFO  valid result: 
+recall@5 : 0.1921    recall@10 : 0.2828    ndcg@5 : 0.1276    ndcg@10 : 0.1569
+Thu 15 Oct 2026 10:12:51 INFO  Saving current: saved/GRU4Rec-Oct-15-2026_09-39-37.pth
+Thu 15 Oct 2026 10:13:32 INFO  epoch 38 training [time: 40.72s, train loss: 2473.1214]
+Thu 15 Oct 2026 10:13:32 INFO  epoch 38 evaluating [time: 0.10s, valid_score: 0.156700]
+Thu 15 Oct 2026 10:13:32 INFO  valid result: 
+recall@5 : 0.1884    recall@10 : 0.2838    ndcg@5 : 0.1259    ndcg@10 : 0.1567
+Thu 15 Oct 2026 10:14:12 INFO  epoch 39 training [time: 39.94s, train loss: 2472.2646]
+Thu 15 Oct 2026 10:14:12 INFO  epoch 39 evaluating [time: 0.08s, valid_score: 0.158500]
+Thu 15 Oct 2026 10:14:12 INFO  valid result: 
+recall@5 : 0.1929    recall@10 : 0.2846    ndcg@5 : 0.1289    ndcg@10 : 0.1585
+Thu 15 Oct 2026 10:14:12 INFO  Saving current: saved/GRU4Rec-Oct-15-2026_09-39-37.pth
+Thu 15 Oct 2026 10:14:52 INFO  epoch 40 training [time: 40.08s, train loss: 2469.2807]
+Thu 15 Oct 2026 10:14:52 INFO  epoch 40 evaluating [time: 0.12s, valid_score: 0.158800]
+Thu 15 Oct 2026 10:14:52 INFO  valid result: 
+recall@5 : 0.1909    recall@10 : 0.2833    ndcg@5 : 0.1289    ndcg@10 : 0.1588
+Thu 15 Oct 2026 10:14:52 INFO  Saving current: saved/GRU4Rec-Oct-15-2026_09-39-37.pth
+Thu 15 Oct 2026 10:15:33 INFO  epoch 41 training [time: 40.91s, train loss: 2467.4551]
+Thu 15 Oct 2026 10:15:33 INFO  epoch 41 evaluating [time: 0.14s, valid_score: 0.159700]
+Thu 15 Oct 2026 10:15:33 INFO  valid result: 
+recall@5 : 0.1972    recall@10 : 0.2828    ndcg@5 : 0.132    ndcg@10 : 0.1597
+Thu 15 Oct 2026 10:15:33 INFO  Saving current: saved/GRU4Rec-Oct-15-2026_09-39-37.pth
+Thu 15 Oct 2026 10:16:13 INFO  epoch 42 training [time: 40.22s, train loss: 2466.0502]
+Thu 15 Oct 2026 10:16:13 INFO  epoch 42 evaluating [time: 0.14s, valid_score: 0.157500]
+Thu 15 Oct 2026 10:16:13 INFO  valid result: 
+recall@5 : 0.1887    recall@10 : 0.2793    ndcg@5 : 0.1282    ndcg@10 : 0.1575
+Thu 15 Oct 2026 10:16:54 INFO  epoch 43 training [time: 40.57s, train loss: 2465.0399]
+Thu 15 Oct 2026 10:16:54 INFO  epoch 43 evaluating [time: 0.14s, valid_score: 0.159800]
+Thu 15 Oct 2026 10:16:54 INFO  valid result: 
+recall@5 : 0.1949    recall@10 : 0.2833    ndcg@5 : 0.1313    ndcg@10 : 0.1598
+Thu 15 Oct 2026 10:16:54 INFO  Saving current: saved/GRU4Rec-Oct-15-2026_09-39-37.pth
+Thu 15 Oct 2026 10:17:35 INFO  epoch 44 training [time: 40.52s, train loss: 2462.9796]
+Thu 15 Oct 2026 10:17:35 INFO  epoch 44 evaluating [time: 0.09s, valid_score: 0.158800]
+Thu 15 Oct 2026 10:17:35 INFO  valid result: 
+recall@5 : 0.1947    recall@10 : 0.2836    ndcg@5 : 0.1304    ndcg@10 : 0.1588
+Thu 15 Oct 2026 10:18:15 INFO  epoch 45 training [time: 40.29s, train loss: 2462.0523]
+Thu 15 Oct 2026 10:18:15 INFO  epoch 45 evaluating [time: 0.11s, valid_score: 0.157900]
+Thu 15 Oct 2026 10:18:15 INFO  valid result: 
+recall@5 : 0.1955    recall@10 : 0.2838    ndcg@5 : 0.1294    ndcg@10 : 0.1579
+Thu 15 Oct 2026 10:18:56 INFO  epoch 46 training [time: 40.74s, train loss: 2460.3927]
+Thu 15 Oct 2026 10:18:56 INFO  epoch 46 evaluating [time: 0.10s, valid_score: 0.160800]
+Thu 15 Oct 2026 10:18:56 INFO  valid result: 
+recall@5 : 0.1969    recall@10 : 0.2858    ndcg@5 : 0.1323    ndcg@10 : 0.1608
+Thu 15 Oct 2026 10:18:56 INFO  Saving current: saved/GRU4Rec-Oct-15-2026_09-39-37.pth
+Thu 15 Oct 2026 10:19:36 INFO  epoch 47 training [time: 40.06s, train loss: 2459.2668]
+Thu 15 Oct 2026 10:19:36 INFO  epoch 47 evaluating [time: 0.10s, valid_score: 0.160800]
+Thu 15 Oct 2026 10:19:36 INFO  valid result: 
+recall@5 : 0.196    recall@10 : 0.2881    ndcg@5 : 0.1311    ndcg@10 : 0.1608
+Thu 15 Oct 2026 10:19:36 INFO  Saving current: saved/GRU4Rec-Oct-15-2026_09-39-37.pth
+Thu 15 Oct 2026 10:20:22 INFO  epoch 48 training [time: 45.57s, train loss: 2458.0559]
+Thu 15 Oct 2026 10:20:22 INFO  epoch 48 evaluating [time: 0.11s, valid_score: 0.159600]
+Thu 15 Oct 2026 10:20:22 INFO  valid result: 
+recall@5 : 0.1902    recall@10 : 0.2831    ndcg@5 : 0.1296    ndcg@10 : 0.1596
+Thu 15 Oct 2026 10:21:07 INFO  epoch 49 training [time: 45.71s, train loss: 2456.9530]
+Thu 15 Oct 2026 10:21:08 INFO  epoch 49 evaluating [time: 0.09s, valid_score: 0.160000]
+Thu 15 Oct 2026 10:21:08 INFO  valid result: 
+recall@5 : 0.1909    recall@10 : 0.282    ndcg@5 : 0.1306    ndcg@10 : 0.16
+Thu 15 Oct 2026 10:21:53 INFO  epoch 50 training [time: 45.06s, train loss: 2455.8173]
+Thu 15 Oct 2026 10:21:53 INFO  epoch 50 evaluating [time: 0.07s, valid_score: 0.159500]
+Thu 15 Oct 2026 10:21:53 INFO  valid result: 
+recall@5 : 0.1957    recall@10 : 0.2863    ndcg@5 : 0.1305    ndcg@10 : 0.1595
+Thu 15 Oct 2026 10:22:38 INFO  epoch 51 training [time: 45.09s, train loss: 2454.7892]
+Thu 15 Oct 2026 10:22:38 INFO  epoch 51 evaluating [time: 0.08s, valid_score: 0.161800]
+Thu 15 Oct 2026 10:22:38 INFO  valid result: 
+recall@5 : 0.1954    recall@10 : 0.2861    ndcg@5 : 0.1325    ndcg@10 : 0.1618
+Thu 15 Oct 2026 10:22:38 INFO  Saving current: saved/GRU4Rec-Oct-15-2026_09-39-37.pth
+Thu 15 Oct 2026 10:23:23 INFO  epoch 52 training [time: 44.98s, train loss: 2453.9970]
+Thu 15 Oct 2026 10:23:23 INFO  epoch 52 evaluating [time: 0.11s, valid_score: 0.159900]
+Thu 15 Oct 2026 10:23:23 INFO  valid result: 
+recall@5 : 0.1952    recall@10 : 0.2873    ndcg@5 : 0.1302    ndcg@10 : 0.1599
+Thu 15 Oct 2026 10:24:07 INFO  epoch 53 training [time: 44.46s, train loss: 2452.9269]
+Thu 15 Oct 2026 10:24:08 INFO  epoch 53 evaluating [time: 0.12s, valid_score: 0.159000]
+Thu 15 Oct 2026 10:24:08 INFO  valid result: 
+recall@5 : 0.1975    recall@10 : 0.281    ndcg@5 : 0.1321    ndcg@10 : 0.159
+Thu 15 Oct 2026 10:24:53 INFO  epoch 54 training [time: 45.56s, train loss: 2451.8069]
+Thu 15 Oct 2026 10:24:53 INFO  epoch 54 evaluating [time: 0.12s, valid_score: 0.159800]
+Thu 15 Oct 2026 10:24:53 INFO  valid result: 
+recall@5 : 0.1974    recall@10 : 0.2858    ndcg@5 : 0.1313    ndcg@10 : 0.1598
+Thu 15 Oct 2026 10:25:37 INFO  epoch 55 training [time: 44.10s, train loss: 2450.6958]
+Thu 15 Oct 2026 10:25:37 INFO  epoch 55 evaluating [time: 0.17s, valid_score: 0.161800]
+Thu 15 Oct 2026 10:25:37 INFO  valid result: 
+recall@5 : 0.1955    recall@10 : 0.2869    ndcg@5 : 0.1324    ndcg@10 : 0.1618
+Thu 15 Oct 2026 10:25:37 INFO  Saving current: saved/GRU4Rec-Oct-15-2026_09-39-37.pth
+Thu 15 Oct 2026 10:26:23 INFO  epoch 56 training [time: 45.13s, train loss: 2449.9384]
+Thu 15 Oct 2026 10:26:23 INFO  epoch 56 evaluating [time: 0.11s, valid_score: 0.160200]
+Thu 15 Oct 2026 10:26:23 INFO  valid result: 
+recall@5 : 0.1965    recall@10 : 0.2844    ndcg@5 : 0.1318    ndcg@10 : 0.1602
+Thu 15 Oct 2026 10:27:10 INFO  epoch 57 training [time: 47.17s, train loss: 2449.2915]
+Thu 15 Oct 2026 10:27:10 INFO  epoch 57 evaluating [time: 0.14s, valid_score: 0.160800]
+Thu 15 Oct 2026 10:27:10 INFO  valid result: 
+recall@5 : 0.2002    recall@10 : 0.2829    ndcg@5 : 0.1342    ndcg@10 : 0.1608
+Thu 15 Oct 2026 10:28:04 INFO  epoch 58 training [time: 54.05s, train loss: 2448.4312]
+Thu 15 Oct 2026 10:28:04 INFO  epoch 58 evaluating [time: 0.15s, valid_score: 0.160200]
+Thu 15 Oct 2026 10:28:04 INFO  valid result: 
+recall@5 : 0.196    recall@10 : 0.2868    ndcg@5 : 0.1311    ndcg@10 : 0.1602
+Thu 15 Oct 2026 10:28:57 INFO  epoch 59 training [time: 52.45s, train loss: 2447.3756]
+Thu 15 Oct 2026 10:28:57 INFO  epoch 59 evaluating [time: 0.09s, valid_score: 0.159000]
+Thu 15 Oct 2026 10:28:57 INFO  valid result: 
+recall@5 : 0.1919    recall@10 : 0.2834    ndcg@5 : 0.1295    ndcg@10 : 0.159
+Thu 15 Oct 2026 10:29:50 INFO  epoch 60 training [time: 52.80s, train loss: 2699.9724]
+Thu 15 Oct 2026 10:29:50 INFO  epoch 60 evaluating [time: 0.11s, valid_score: 0.110100]
+Thu 15 Oct 2026 10:29:50 INFO  valid result: 
+recall@5 : 0.1334    recall@10 : 0.2081    ndcg@5 : 0.0861    ndcg@10 : 0.1101
+Thu 15 Oct 2026 10:30:42 INFO  epoch 61 training [time: 52.30s, train loss: 2648.4243]
+Thu 15 Oct 2026 10:30:42 INFO  epoch 61 evaluating [time: 0.11s, valid_score: 0.124900]
+Thu 15 Oct 2026 10:30:42 INFO  valid result: 
+recall@5 : 0.1507    recall@10 : 0.2339    ndcg@5 : 0.0983    ndcg@10 : 0.1249
+Thu 15 Oct 2026 10:31:34 INFO  epoch 62 training [time: 52.30s, train loss: 2605.5642]
+Thu 15 Oct 2026 10:31:35 INFO  epoch 62 evaluating [time: 0.21s, valid_score: 0.136700]
+Thu 15 Oct 2026 10:31:35 INFO  valid result: 
+recall@5 : 0.1644    recall@10 : 0.2507    ndcg@5 : 0.109    ndcg@10 : 0.1367
+Thu 15 Oct 2026 10:32:28 INFO  epoch 63 training [time: 53.19s, train loss: 2637.4908]
+Thu 15 Oct 2026 10:32:28 INFO  epoch 63 evaluating [time: 0.10s, valid_score: 0.114000]
+Thu 15 Oct 2026 10:32:28 INFO  valid result: 
+recall@5 : 0.1397    recall@10 : 0.2111    ndcg@5 : 0.091    ndcg@10 : 0.114
+Thu 15 Oct 2026 10:33:19 INFO  epoch 64 training [time: 51.49s, train loss: 2652.7732]
+Thu 15 Oct 2026 10:33:20 INFO  epoch 64 evaluating [time: 0.21s, valid_score: 0.132500]
+Thu 15 Oct 2026 10:33:20 INFO  valid result: 
+recall@5 : 0.1594    recall@10 : 0.2447    ndcg@5 : 0.1051    ndcg@10 : 0.1325
+Thu 15 Oct 2026 10:34:07 INFO  epoch 65 training [time: 47.91s, train loss: 2559.0741]
+Thu 15 Oct 2026 10:34:08 INFO  epoch 65 evaluating [time: 0.13s, valid_score: 0.143200]
+Thu 15 Oct 2026 10:34:08 INFO  valid result: 
+recall@5 : 0.172    recall@10 : 0.2649    ndcg@5 : 0.1135    ndcg@10 : 0.1432
+Thu 15 Oct 2026 10:34:47 INFO  epoch 66 training [time: 39.54s, train loss: 2525.9853]
+Thu 15 Oct 2026 10:34:47 INFO  epoch 66 evaluating [time: 0.10s, valid_score: 0.147100]
+Thu 15 Oct 2026 10:34:47 INFO  valid result: 
+recall@5 : 0.1801    recall@10 : 0.2689    ndcg@5 : 0.1186    ndcg@10 : 0.1471
+Thu 15 Oct 2026 10:34:47 INFO  Finished training, best eval result in epoch 55
+Thu 15 Oct 2026 10:34:47 INFO  Loading model structure and parameters from saved/GRU4Rec-Oct-15-2026_09-39-37.pth
+Thu 15 Oct 2026 10:34:48 INFO  The running environment of this training is as follows:
++-------------+-----------------+
+| Environment |      Usage      |
++=============+=================+
+| CPU         |     45.70 %     |
++-------------+-----------------+
+| GPU         | 9.17 G/23.65 G  |
++-------------+-----------------+
+| Memory      | 5.65 G/125.50 G |
++-------------+-----------------+
+Thu 15 Oct 2026 10:34:48 INFO  best valid : OrderedDict([('recall@5', 0.1955), ('recall@10', 0.2869), ('ndcg@5', 0.1324), ('ndcg@10', 0.1618)])
+Thu 15 Oct 2026 10:34:48 INFO  test result: OrderedDict([('recall@5', 0.1861), ('recall@10', 0.2657), ('ndcg@5', 0.1261), ('ndcg@10', 0.1517)])
+Thu 15 Oct 2026 10:34:48 INFO  test result:
+recall@5 : 0.1861    recall@10 : 0.2657    ndcg@5 : 0.1261    ndcg@10 : 0.1517
