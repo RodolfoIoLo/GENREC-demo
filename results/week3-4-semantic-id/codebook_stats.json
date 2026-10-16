@@ -1,0 +1,60 @@
+{
+  "kmeans": {
+    "n_items": 3416,
+    "n_levels": 3,
+    "levels": [
+      {
+        "level": 0,
+        "utilization": 1.0,
+        "n_codes_used": 256,
+        "codebook_size": 256,
+        "perplexity": 200.99
+      },
+      {
+        "level": 1,
+        "utilization": 1.0,
+        "n_codes_used": 256,
+        "codebook_size": 256,
+        "perplexity": 97.45
+      },
+      {
+        "level": 2,
+        "utilization": 1.0,
+        "n_codes_used": 256,
+        "codebook_size": 256,
+        "perplexity": 14.88
+      }
+    ],
+    "n_unique_ids": 3416,
+    "collision_rate_before_dedup": 0.0278
+  },
+  "rqvae": {
+    "n_items": 3416,
+    "n_levels": 3,
+    "levels": [
+      {
+        "level": 0,
+        "utilization": 1.0,
+        "n_codes_used": 256,
+        "codebook_size": 256,
+        "perplexity": 219.28
+      },
+      {
+        "level": 1,
+        "utilization": 0.9883,
+        "n_codes_used": 253,
+        "codebook_size": 256,
+        "perplexity": 232.02
+      },
+      {
+        "level": 2,
+        "utilization": 0.9883,
+        "n_codes_used": 253,
+        "codebook_size": 256,
+        "perplexity": 241.1
+      }
+    ],
+    "n_unique_ids": 3416,
+    "collision_rate_before_dedup": 0.0015
+  }
+}

@@ -1,0 +1,21 @@
+# RQ-VAE 架构对齐 TIGER Section 4；训练采用稳定的两阶段方案
+in_dim: 384
+n_levels: 3
+codebook_size: 256
+latent: 32
+beta: 0.25
+
+# 先训练连续自编码器，再在全部潜向量上逐层 K-Means 初始化码本
+pretrain_epochs: 200
+pretrain_lr: 0.001
+init_n_init: 10
+
+# RQ-VAE 联合训练；checkpoint 要求每层至少使用 90% 的码字
+epochs: 2000
+batch_size: 256
+lr: 0.0001
+min_utilization: 0.9
+
+seed: 42
+log_every: 100
+device: cpu
