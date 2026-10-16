@@ -46,7 +46,7 @@ def main():
         [texts[k] for k in ids],
         batch_size=args.batch_size,
         convert_to_numpy=True,
-        normalize_embeddings=False,      # 不归一化,理由见任务书 §7.1
+        normalize_embeddings=False,      
         show_progress_bar=True,
     ).astype(np.float32)
 
