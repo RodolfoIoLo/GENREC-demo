@@ -1,319 +1,265 @@
-# 基于语义标识符的生成式推荐方法研究与实现
+# GENREC-demo:基于语义标识符的生成式推荐
 
-把物品编码成「词」（语义标识符），把推荐变成「造句」（自回归生成）。
+> 7 周科研轮转项目,持续更新中.目标是从可复现的序列推荐基线出发,构建"物品文本 → 语义标识符 → 自回归推荐"的完整实验链路.
 
-这是 **7 周科研轮转课题**的项目仓库，当前覆盖 **第 1–2 周**：数据管线 + SASRec 判别式基线。
+## 这是什么
 
-| 阶段 | 内容 | 状态 |
+传统推荐通常为候选物品逐个打分,再从数千个分数中排序;生成式推荐则先把物品表示成一串离散语义 token,让模型像生成句子一样,直接生成下一个物品的标识符.作为端到端的推荐新范式, 生成式推荐可以更好地利用物品文本,用户序列和语义结构,尤其在冷启动和长尾场景中,是未来推荐系统的一个重要方向.
+
+```text
+传统推荐:用户历史 → 为 3,416 个候选物品打分 → Top-K
+生成式推荐:物品文本 → 分层语义 ID → 用户 token 序列 → 自回归生成下一个语义 ID
+
+示意(非当前实验结果):
+Toy Story → [37, 128, 5, 0]
+```
+
+这种表示把"推荐哪个物品"转化为"生成哪组语义 token".共享前缀可以表达由粗到细的语义结构,也为统一检索,推荐与新物品建模提供了一个清晰接口.
+
+本仓库强调三件事:
+
+- **可复现**:数据划分,评测协议,随机种子,日志与环境版本均留痕.
+- **可比较**:先建立 SASRec / GRU4Rec 全量排序基线,再进入生成式模型.
+- **可解释**:不仅报告推荐指标,也检查码本利用率,冲突率和前缀语义一致性.
+
+## 当前进度
+
+更新于 **2026-10-15**.
+
+| 周次 | 工作 | 状态 |
 |---|---|---|
-| 第 1 周 | 数据准备与统计 | ✅ 完成 |
-| 第 2 周 | RecBole 基线复现 | ✅ 完成 |
-| 第 3–4 周 | 物品语义标识符构建 | ⏳ 待开始 |
-| 第 5–6 周 | 生成式模型训练与评测 | ⏳ 待开始 |
-| 第 7 周 | 改进探索、消融与结项 | ⏳ 待开始 |
+| 第 1 周 | MovieLens 1M 下载,5-core 预处理,时间切分,统计分析 | ✅ 完成 |
+| 第 2 周 | SASRec 三随机种子,GRU4Rec 基线与 checkpoint 复评 | ✅ 完成 |
+| 第 3–4 周 | 文本编码,RQ-Kmeans / RQ-VAE,语义 ID 与码本分析 | 🚧 文本编码完成,量化待运行 |
+| 第 5–6 周 | T5 类生成式推荐训练,全量排序评测与基线对比 | ⏳ 计划中 |
+| 第 7 周 | 冷启动 / 长尾改进,消融实验与结项报告 | ⏳ 计划中 |
 
----
+### 已得到的核心结果
 
-## 快速开始
+测试集采用 **3,416 个物品全量排序**,不是"1 个正样本 + 少量随机负样本"的采样评测.
+
+| 模型 | Seed | Recall@5 | Recall@10 | NDCG@5 | NDCG@10 |
+|---|---:|---:|---:|---:|---:|
+| SASRec | 42 | 0.1409 | 0.2204 | 0.0884 | 0.1141 |
+| SASRec | 43 | 0.1523 | 0.2339 | 0.0968 | 0.1230 |
+| SASRec | 44 | 0.1526 | 0.2250 | 0.0958 | 0.1191 |
+| **SASRec** | **均值 ± std** | **0.1486 ± 0.0054** | **0.2264 ± 0.0056** | **0.0937 ± 0.0037** | **0.1187 ± 0.0036** |
+| **GRU4Rec** | **42** | **0.1861** | **0.2657** | **0.1261** | **0.1517** |
+
+完整产物,数据规格与文件来源见 [`results/README.md`](results/README.md).
+
+## 实验路线
+
+| 周次 | 输入 | 关键步骤 | 主要输出 |
+|---|---|---|---|
+| Week 1 | MovieLens 1M 原始评分与电影元数据 | 5-core,ID 重映射,按时间 leave-one-out,无泄漏校验 | `.inter`,三份 `jsonl`,统计表与分布图 |
+| Week 2 | 行为序列 | RecBole 复现 SASRec / GRU4Rec,多种子全量排序评测 | 训练日志,checkpoint,基线表 |
+| Week 3–4 | `title + year + genres` | MiniLM 文本编码,残差量化,冲突消解,码本质量分析 | `item_emb.npy`,4-token 语义 ID,码本报告 |
+| Week 5–6 | 语义 ID 序列 | 训练 encoder-decoder Transformer,自回归生成下一物品 | 生成式推荐结果与基线对比 |
+| Week 7 | 完整模型与物品频次 | 冷启动 / 长尾实验,消融与误差分析 | 最终报告与可复现实验表 |
+
+## 冻结实验协议
+
+| 类别 | 设置 |
+|---|---|
+| 数据 | MovieLens 1M;隐式反馈;5-core 迭代过滤;ID 重映射为连续整数 |
+| 划分 | 每个用户按时间排序,最后 1 条为 test,倒数第 2 条为 valid |
+| 评测 | 全量排序;Recall@5/10,NDCG@5/10;屏蔽训练期已见物品 |
+| 基线 | RecBole 1.2.1;CE;最大序列长度 200;以 valid NDCG@10 早停 |
+| 文本 | `{title} ({year}) \| {genres}`;`all-MiniLM-L6-v2`;384 维 L2 单位向量 |
+| 量化 | RQ-Kmeans baseline;RQ-VAE 主方案;`L=3`,`K=256`,latent=32 |
+| 语义 ID | 3 层量化码 + 1 位碰撞消歧码,共 4 token;物品词表大小 1,024 |
+
+## 环境与复现
+
+- Ubuntu 服务器:4 × NVIDIA RTX 4090
+- Python 3.11.16
+- PyTorch 2.14.0+cu126
+- RecBole 1.2.1
+- NumPy 1.26.4 / SciPy 1.17.1 / scikit-learn 1.9.1
+- 完整环境快照:[`requirements.txt`](requirements.txt)
 
 ```bash
-# 1. 环境（requirements.txt 里有三条硬 pin，装错会 import 失败，见 §1）
+# 环境
 pip install torch==2.14.0+cu126 --index-url https://download.pytorch.org/whl/cu126
 pip install -r requirements.txt
 
-# 2. 数据（原始数据从 https://grouplens.org/datasets/movielens/1m/ 下载到 data/ml-1m/raw/）
-python scripts/preprocess.py   --dataset ml-1m
-python scripts/stats.py        --dataset ml-1m
-python scripts/verify_split.py --data-dir /data/zby/data/ml-1m/processed    # 应输出 PASS
+# Week 1:预处理,统计与划分校验
+python scripts/preprocess.py --dataset ml-1m
+python scripts/stats.py --dataset ml-1m
+python scripts/verify_split.py --data-dir /data/zby/data/ml-1m/processed
 
-# 3. 基线（约 80 分钟，务必在 tmux 里跑）
-python scripts/run_baseline.py --model SASRec --config config/sasrec_ml1m.yaml
+# Week 2:序列推荐基线
+python scripts/run_baseline.py --model SASRec --config config/sasrec_ml1m.yaml --seed 42
+python scripts/run_baseline.py --model GRU4Rec --config config/sasrec_ml1m.yaml --seed 42
+
+# Week 3:物品文本编码(默认 CPU;模型从服务器本地目录读取)
+python scripts/encode_items.py --model /data/LLMs/all-MiniLM-L6-v2 --out item_emb.npy
 ```
 
----
+MovieLens 1M 可从 [GroupLens](https://grouplens.org/datasets/movielens/1m/) 获取.原始数据,embedding 和 checkpoint 不进入 Git;它们的路径,规格和校验信息记录在结果索引中.
 
-## 仓库结构
+## 目录
 
-```
+### 1. GitHub 仓库
+
+```text
 repository/
-├── README.md                  # 本文件
-├── requirements.txt           # 环境快照（含三条硬 pin）
 ├── .gitignore
-│
+├── README.md
+├── requirements.txt
 ├── config/
-│   └── sasrec_ml1m.yaml       # 第 2 周冻结的实验配置（复现的唯一入口）
-│
+│   └── sasrec_ml1m.yaml
 ├── scripts/
-│   ├── preprocess.py          # 第 1 周：原始数据 → .inter + jsonl + 映射表 + item_text
-│   ├── stats.py               # 第 1 周：数据统计 + 3 张分布图
-│   ├── verify_split.py        # 第 1 周：逐用户校验划分（时间单调 / 无泄漏）→ PASS
-│   ├── run_baseline.py        # 第 2 周：一键训练 + 评测
-│   └── eval_only.py           # 第 2 周：从 checkpoint 只跑评测
-│
-├── data/
-│   └── README.md              # 数据规格说明（仓库不放真实数据）
-│
+│   ├── preprocess.py
+│   ├── stats.py
+│   ├── verify_split.py
+│   ├── run_baseline.py
+│   ├── eval_only.py
+│   ├── export_item_freq.py
+│   └── encode_items.py
 ├── results/
-│   ├── README.md              # 结果索引：每个文件 ← 哪条命令生成的
-│   ├── samples.md             # 没入库的大文件长什么样（头部样本）
-│   ├── week1-data-stats/      # 第 1 周产出：stats.md / stats.json / figs/ / preprocess_log.json
-│   └── week2-sasrec-baseline/ # 第 2 周产出：train_0928.log / test_1010.log
-│
-└── note/                      # 学习笔记与周记
+│   ├── README.md
+│   ├── week1-data-stats/
+│   │   ├── preprocess_log.json
+│   │   ├── stats.json
+│   │   ├── stats.md
+│   │   ├── item_freq.json
+│   │   └── figs/
+│   │       ├── item_freq_hist.png
+│   │       ├── item_freq_loglog.png
+│   │       └── seq_len_hist.png
+│   └── week2-sasrec-baseline/
+│       ├── baseline_table.md
+│       ├── sasrec_s42.log
+│       ├── sasrec_s42_patch_test.log
+│       ├── sasrec_s43.log
+│       ├── sasrec_s44.log
+│       └── gru4rec_s42.log
+└── note/
     ├── week0-生成式推荐_三阶段全链路.md
     ├── week1-真实数据实例说明.md
     ├── week2-前置知识-RecBole与基线模型.md
-    └── 日志...
+    ├── week3-前置知识-向量量化与语义标识符.md
+    ├── 09-15.md
+    ├── 09-16.md
+    ├── 09-17.md
+    ├── 09-21.md
+    ├── 09-22.md
+    ├── 09-23.md
+    ├── 10-10.md
+    ├── 10-13.md
+    └── 10-14.md
 ```
 
-**文档导航**
+### 2. 服务器
 
-| 我想知道… | 看哪里 |
-|---|---|
-| 数据每个文件是什么、字段什么意思、被谁读谁写 | [`data/README.md`](data/README.md) |
-| 结果文件是哪个脚本跑出来的 | [`results/README.md`](results/README.md) |
-| 那些没进仓库的文件长什么样 | [`results/samples.md`](results/samples.md) |
-| 学习笔记 | [`note/`](note/) |
-| 服务器上到底有哪些目录和文件 | 本文件 §6 |
+<details>
+<summary><code>/home/zby/genrec/</code>:代码,训练日志与模型产物</summary>
 
----
-
-## 1. 环境
-
-- Python 3.11 + PyTorch 2.14.0 (cu126) + RecBole 1.2.1，服务器 4×RTX 4090
-- 服务器 `amax510`，conda 环境名 `genrec`
-- 完整依赖快照：`requirements.txt`
-
-> ⚠️ `requirements.txt` 里有**三条硬 pin 必须保留**：`setuptools<82`、`numpy<2`、`scipy<1.18`。
-> 少任意一条，`import recbole` 都会直接崩。已验证的可用组合是
-> **numpy 1.26.4 + scipy 1.17.1 + setuptools 81.0.0**，原因写在 `requirements.txt` 的注释里。
-
-装完自检：
-
-```bash
-python -c "import numpy, scipy, torch; print(numpy.__version__, scipy.__version__, torch.__version__, torch.cuda.is_available())"
-python -c "import recbole; print('recbole OK', recbole.__version__)"
-pip check
-```
-
----
-
-## 2. 数据
-
-- 数据集：**MovieLens ml-1m**（原始：6040 用户 / 3706 物品 / 1,000,209 条评分）
-- 5-core 迭代过滤后：**6040 用户 / 3416 物品 / 999,611 条交互**
-- 与 SASRec 论文（arXiv:1808.09781）在 ML-1M 上的预处理结果**完全一致**（论文同样丢弃交互数 < 5 的用户和物品）
-
-划分（leave-one-out，按时间）：
-
-```
-每个用户的交互按 timestamp 升序排列
-  ├── 最后 1 条      → test
-  ├── 倒数第 2 条    → valid
-  └── 其余           → train
-
-交互层：train 987,531 / valid 6,040 / test 6,040  （合计 999,611）
-样本层：train 981,491 / valid 6,040 / test 6,040
-        （每用户 N 条 train 交互展开成 N−1 条序列样本，第一条交互不产生样本）
-```
-
-> 样本之间高度重叠：同一用户的 N−1 条样本前缀逐层嵌套，一条交互会同时出现在
-> 「1 次当目标」和「多次当历史」的位置上。
-
-**每个文件是什么、里面长什么样、被谁读、被谁写** → 见 [`data/README.md`](data/README.md)。
-数据本身不进仓库（体积 + 可复现性，理由见该文档 §4）。
-
----
-
-## 3. 实验协议（v2，已冻结）
-
-**红线：协议冻结后不再改。换数据集或换划分 = 前面所有结果作废。对比表的列就是协议的一部分。**
-
-### 3.1 数据层（第 1 周确定）
-
-| 项 | 取值 |
-|---|---|
-| 数据集 | ml-1m |
-| 反馈类型 | 隐式，有交互即正样本（1–5 分不设阈值） |
-| k-core | k=5，迭代至收敛 |
-| 划分 | leave-one-out，按时间：最后 1 条 = test，倒数第 2 条 = valid |
-| 评价方式 | **全量排序**（候选集 = 全部 3416 个物品，不是采样） |
-| 指标 | Recall@5/10、NDCG@5/10 |
-| 随机种子 | 42 |
-| ID 处理 | 重映射为 0..N−1 连续整数 |
-
-### 3.2 训练 / 评测层（第 2 周确定）
-
-| 项 | 取值 |
-|---|---|
-| 基线实现 | **RecBole 1.2.1**（锁定版本，不换实现） |
-| 最大序列长度 | `MAX_ITEM_LIST_LENGTH = 200`（RecBole 默认 50 太短） |
-| 评测屏蔽 | **屏蔽训练集中出现过的物品**（分数置 −inf，RecBole 官方行为；自研评测脚本必须照做） |
-| 损失口径 | CE（交叉熵，不做负采样） |
-| 早停 | `valid_metric = NDCG@10`，`stopping_step = 10`；报告中写实际跑到的 epoch 数 |
-| 随机种子 | 先跑单种子 42；有余力补 3 种子均值 ± 标准差 |
-
----
-
-## 4. 结果
-
-| 模型 | 实现 | 评测集 | Recall@5 | Recall@10 | NDCG@5 | NDCG@10 |
-|---|---|---|---|---|---|---|
-| 随机排序（理论） | — | — | 0.0015 | 0.0029 | 0.0009 | 0.0013 |
-| **SASRec** | RecBole 1.2.1 | valid | 0.1601 | 0.2505 | 0.0993 | 0.1283 |
-| **SASRec** | RecBole 1.2.1 | **test** | **0.1409** | **0.2204** | **0.0884** | **0.1141** |
-
-> 数字看起来比 SASRec 论文低很多（论文 ML-1M 上 Hit@10 = 0.8245），这是**口径不同**：
-> 论文用 1 正 + 100 随机负采样，我们用全量 3416 候选，候选集大 34 倍。两者不可比。
-
-随机基线 = `K / 3416`（1 个正样本在全部物品里随机排）。test Recall@10 约为随机的 **75 倍**。
-
-**指标口径**（leave-one-out 下每用户只有 1 个正确答案）：
-
-- `Recall@K` 与 `Hit@K` **完全等价**（命中非 0 即 1），不是简写，是定义上的相等
-- `NDCG@K` 的 IDCG 恒为 1（最理想就是排第 1 得 1.0），所以它等于**命中位置折扣的平均**：
-  排第 1 → 1.000，第 2 → 0.631，第 3 → 0.500，第 5 → 0.387，第 10 → 0.289
-- 自洽校验：`NDCG@10 / Recall@10 = 0.1141 / 0.2204 ≈ 0.518`，说明命中时平均排在**第 2–3 名**
-
-### 训练细节
-
-| 项 | 值 |
-|---|---|
-| 日志 | `results/week2-sasrec-baseline/train_0928.log`（训练）、`test_1010.log`（test 评测） |
-| 实际训练轮数 | **43 个 epoch（0–42）**，`stopping_step=10` 触发早停（`epochs=300` 是上限，没用满） |
-| 最优 epoch | **31** |
-| 单 epoch 耗时 | 约 112 秒（480 个 batch，batch_size=2048） |
-| 参数量 | **331,584**（其中 item embedding 占 218,688） |
-| 网络结构 | 2 层 Transformer，2 头，hidden 64，inner 256，GELU，post-LN |
-| 训练 loss | epoch 0 = 3362.31 → epoch 42 = 2721.19（日志是**全 epoch 累加**口径，除以 480 得单条样本平均 ≈ 7.0 → 5.67） |
-
-### 复现性证据
-
-用 `eval_only.py` 从最优 checkpoint 重新评测 valid，得到
-`0.1601 / 0.2505 / 0.0993 / 0.1283`，与训练日志里 epoch 31 的记录**逐位相同**。
-说明 `seed=42 + reproducibility=True` 的固定种子链路是可靠的。
-
----
-
-## 5. 复现步骤
-
-### 5.1 数据（第 1 周）
-
-```bash
-python scripts/preprocess.py --dataset ml-1m    # 原始 → processed/
-python scripts/stats.py      --dataset ml-1m    # 统计表 + 3 张图
-python scripts/verify_split.py --data-dir /data/zby/data/ml-1m/processed   # 应输出 PASS
-```
-
-### 5.2 基线（第 2 周）
-
-```bash
-cd ~/genrec
-python scripts/run_baseline.py --model SASRec --config config/sasrec_ml1m.yaml
-```
-
-> ⚠️ **必须用 tmux 跑**（约 80 分钟）。SSH 断开会杀掉前台进程：
-> `tmux new -s sasrec` → 跑命令 → `Ctrl+B` `D` 脱离。
-
-从已保存的 checkpoint 只补跑评测（约 1 分钟，不重新训练）：
-
-```bash
-python scripts/eval_only.py --model_file saved/SASRec-Sep-28-2026_19-18-04.pth
-```
-
-### 5.3 目录约定
-
-数据放 `/data/zby/`，不放家目录（服务器约定）。RecBole 要求 `{data_path}/{dataset}/{dataset}.inter`，
-所以做了一层软链接：
-
-```bash
-ln -s /data/zby/data/ml-1m/processed /data/zby/data/recbole/ml-1m
-```
-
----
-
-## 6. 服务器上的真实目录
-
-主机 `amax510`（Tailscale `100.100.97.78`），用户 `zby`，conda 环境 `genrec`。
-
-### 6.1 代码仓库 `~/genrec/`
-
-```
+```text
 /home/zby/genrec/
+├── requirements.txt
+├── item_freq.json
+├── item_emb.npy
 ├── config/
-│   └── sasrec_ml1m.yaml                                    4.0K
+│   └── sasrec_ml1m.yaml
 ├── scripts/
-│   ├── preprocess.py                                         12K
-│   ├── stats.py                                              12K
-│   ├── verify_split.py                                      8.0K
-│   ├── run_baseline.py                                      4.0K
-│   └── eval_only.py                                         4.0K
-├── requirements.txt                                         4.0K
-├── log/SASRec/                       ← RecBole 自写的干净日志（入库的就是这里面的）
-│   ├── SASRec-ml-1m-Sep-28-2026_19-17-25-dbfc42.log          20K  ← 已入库
-│   └── SASRec-ml-1m-Oct-10-2026_15-55-25-dbfc42.log         8.0K  ← 已入库
-├── results/                          ← tee 出来的原始日志（不入库）
-│   ├── sasrec_0928_1916.log                                 5.0M  ← 被 tqdm 的 \r 刷过
-│   └── eval_only_1010.log                                   8.0K
+│   ├── preprocess.py
+│   ├── stats.py
+│   ├── verify_split.py
+│   ├── run_baseline.py
+│   ├── eval_only.py
+│   ├── export_item_freq.py
+│   └── encode_items.py
+├── log/
+│   ├── GRU4Rec/
+│   │   └── GRU4Rec-ml-1m-Oct-15-2026_09-39-08-c5973e.log
+│   └── SASRec/
+│       ├── SASRec-ml-1m-Sep-28-2026_19-17-25-dbfc42.log
+│       ├── SASRec-ml-1m-Oct-10-2026_15-55-25-dbfc42.log
+│       ├── SASRec-ml-1m-Oct-15-2026_13-00-11-6e006f.log
+│       └── SASRec-ml-1m-Oct-15-2026_17-48-15-37672d.log
+├── results/
+│   ├── sasrec_0928_1916.log
+│   ├── eval_only_1010.log
+│   ├── sasrec_s43.log
+│   ├── sasrec_s44.log
+│   └── gru4rec_s42.log
 ├── saved/
-│   └── SASRec-Sep-28-2026_19-18-04.pth                      3.9M  ← best epoch 31 的权重
-└── log_tensorboard/...
+│   ├── SASRec-Sep-28-2026_19-18-04.pth
+│   ├── SASRec-Oct-15-2026_13-00-52.pth
+│   ├── SASRec-Oct-15-2026_17-48-40.pth
+│   └── GRU4Rec-Oct-15-2026_09-39-37.pth
+└── log_tensorboard/
+    ├── SASRec-ml-1m-Sep-28-2026_19-17-25-dbfc42/
+    │   ├── events.out.tfevents.1790594284.amax510.2957982.0
+    │   └── 1790599116.9876099/events.out.tfevents.1790599116.amax510.2957982.1
+    ├── SASRec-ml-1m-Oct-10-2026_15-55-25-dbfc42/
+    │   └── events.out.tfevents.1791618952.amax510.3426306.0
+    ├── SASRec-ml-1m-Oct-15-2026_13-00-11-6e006f/
+    │   ├── events.out.tfevents.1792040452.amax510.1638753.0
+    │   └── 1792057665.8991668/events.out.tfevents.1792057665.amax510.1638753.1
+    ├── SASRec-ml-1m-Oct-15-2026_17-48-15-37672d/
+    │   ├── events.out.tfevents.1792057720.amax510.2509236.0
+    │   └── 1792069370.1500692/events.out.tfevents.1792069370.amax510.2509236.1
+    └── GRU4Rec-ml-1m-Oct-15-2026_09-39-08-c5973e/
+        ├── events.out.tfevents.1792028377.amax510.1040029.0
+        └── 1792031687.831251/events.out.tfevents.1792031687.amax510.1040029.1
 ```
 
-### 6.2 数据 `/data/zby/data/`
+#### 训练产物为什么叫这些名字
 
-```
+`results/` 是运行命令时手工给 `tee` 指定的文件名,不遵循 RecBole 的自动命名规则;其余三类由 RecBole / TensorBoard 自动生成:
+
+| 位置 | 命名格式 | 各字段含义 |
+|---|---|---|
+| `log/<Model>/` | `<Model>-<Dataset>-<启动时间>-<config_hash>.log` | 末尾 6 位是最终配置(包含 seed 等参数)的 MD5 短指纹,用于区分不同实验配置 |
+| `saved/` | `<Model>-<Trainer初始化时间>.pth` | 训练期间每次 valid 指标刷新都会覆盖这一个路径,最终留下 best checkpoint.文件名不含数据集、seed 或配置指纹,复现时要结合对应日志或 checkpoint 内的 `config` 判断 |
+| `log_tensorboard/` 外层目录 | 与 `log/<Model>/` 的日志主文件名相同 | 因而可以按模型、数据集、启动时间和配置指纹与训练日志一一对应 |
+| `events.out.tfevents.<time>.<host>.<pid>.<n>` | TensorBoard 标准事件名 | `time` 是 Unix 时间戳,`host` 是主机名,`pid` 是写入进程号,末位是同一进程的事件文件序号 |
+| TensorBoard 内的浮点数子目录 | `<time.time()>/events.out.tfevents...` | RecBole 在训练收尾调用 `add_hparams()` 时创建,保存超参数与 best valid score;这串小数只是 Unix 时间,不是实验指标 |
+
+这些时间都表示相应对象的**创建/初始化时间**,不一定等于训练完成时间或 best epoch 的时间.
+
+</details>
+
+<details>
+<summary><code>/data/zby/data/</code>:原始数据与可复现预处理结果</summary>
+
+```text
 /data/zby/data/
 ├── ml-1m/
-│   ├── raw/                          ← 原始数据集（从 GroupLens 下载）
-│   │   ├── ml-1m.zip                                        5.7M
-│   │   ├── ratings.dat                                       24M
-│   │   ├── movies.dat                                       168K
-│   │   ├── users.dat                                        132K
-│   │   └── README                                           8.0K
-│   └── processed/                    ← preprocess.py 的产出
-│       ├── ml-1m.inter                                       21M  ← RecBole 读的就是这个
-│       ├── train.jsonl                                      5.5M
-│       ├── valid.jsonl                                      5.6M
-│       ├── test.jsonl                                       5.7M
-│       ├── item_id_map.json                                  52K
-│       ├── user_id_map.json                                  96K
-│       ├── item_text.json                                   176K  ← 第 3 周的文本输入
-│       ├── preprocess_log.json                              4.0K  ← 已入库
+│   ├── raw/
+│   │   ├── ml-1m.zip
+│   │   ├── README
+│   │   ├── ratings.dat
+│   │   ├── movies.dat
+│   │   └── users.dat
+│   └── processed/
+│       ├── ml-1m.inter
+│       ├── train.jsonl
+│       ├── valid.jsonl
+│       ├── test.jsonl
+│       ├── user_id_map.json
+│       ├── item_id_map.json
+│       ├── item_text.json
+│       ├── preprocess_log.json
 │       └── stats/
-│           ├── stats.md                                     8.0K  ← 已入库
-│           ├── stats.json                                   4.0K  ← 已入库
-│           └── figs/                                                ← 已入库
-│               ├── item_freq_hist.png                        32K
-│               ├── item_freq_loglog.png                      40K
-│               └── seq_len_hist.png                          32K
+│           ├── stats.md
+│           ├── stats.json
+│           └── figs/
+│               ├── item_freq_hist.png
+│               ├── item_freq_loglog.png
+│               └── seq_len_hist.png
 └── recbole/
-    └── ml-1m -> /data/zby/data/ml-1m/processed             软链接（RecBole 路径要求）
+    └── ml-1m -> /data/zby/data/ml-1m/processed
 ```
 
-> 每个文件里到底是什么内容，看 [`results/samples.md`](results/samples.md)；
-> 跑一次会自动生成哪些文件、它们的命名规则和内部结构，看 [`results/README.md`](results/README.md) §2。
+</details>
 
----
+文本编码器从服务器共享只读目录 `/data/LLMs/all-MiniLM-L6-v2` 加载;`/data/LLMs/bge-m3` 预留作对照,不需要联网下载模型.
 
-## 7. 已知问题与踩坑
+## 说明
 
-1. **PyTorch 2.6+ 改了 `torch.load` 的 `weights_only` 默认值**（`False` → `True`），
-   而 RecBole 1.2.1 的 `trainer/trainer.py:583` 是裸调用 → 训练结束加载最优模型做 test 时抛
-   `_pickle.UnpicklingError`。**训练本身不受影响，但 test 指标会整段丢失。**
-   → `run_baseline.py` 与 `eval_only.py` 在 `import recbole` 之前把默认值改回 `False`（checkpoint 是自产的可信文件）。
-
-2. **`load_data_and_model` 不跑 `Config.__init__`**，因此 `compatibility_settings()` 也没跑，
-   numpy 的旧别名（`np.float` / `np.bool` / `np.object` …）没被补回来，
-   而 `evaluator/metrics.py:190` 的 NDCG 正要用 `np.float`。
-   → `eval_only.py` 里手动补一句 `config.compatibility_settings()`。
-
-3. **RecBole 的日志「上万行」是显示假象**。每个 epoch 其实只写 4 行；多出来的是 tqdm 往 stderr
-   写的 `\r` 进度条被 `tee` 收进日志，编辑器把 `\r` 当成换行。
-   → 用 RecBole 自写的 `log/<模型>/…` 那一份（无 ANSI 颜色码、无 `\r`）。
-
-4. **为什么按类型分目录、而不是按 `week1/` `week2/` 分**：第 3–7 周的脚本会横跨多个周次
-   （例如 `run_baseline.py` 在后续周里还要反复改超参跑），按类型分不会随周次增长而需要搬迁。
-   「哪一周做了什么」由上面的进度表和 `results/weekN-*/` 子目录名承载。
-
----
+这是一个仍在推进的科研仓库:已完成内容给出真实日志和可复现数字,尚未运行的实验明确标为待完成,不用计划值冒充结果.
