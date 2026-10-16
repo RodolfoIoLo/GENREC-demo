@@ -6,7 +6,7 @@
 |---|---|---|
 | Week 1 | `week1-data-stats/`；预处理数据位于服务器 `/data/zby/data/ml-1m/processed/` | ✅ 完成 |
 | Week 2 | `week2-sasrec-baseline/`；checkpoint 位于服务器 `~/genrec/saved/` | ✅ 完成 |
-| Week 3–4 | `item_emb.npy` 已完成；语义 ID、码本报告与冻结接口待生成 | 🚧 进行中 |
+| Week 3–4 | 文本编码、残差量化、码本统计与 `(L,K)` 网格 | 🚧 阶段 1–5 已完成 |
 | Week 5–6 | 生成式模型训练日志与对比表 | ⏳ 未开始 |
 | Week 7 | 冷启动 / 长尾实验、消融与最终报告 | ⏳ 未开始 |
 
@@ -144,7 +144,7 @@ seed 42 的 `eval_only.py` 结果与 best epoch 的 valid 指标逐位一致，�
 
 ## Week 3–4：物品语义标识符
 
-### 已完成：文本编码
+### 文本编码
 
 | 项 | 结果 |
 |---|---|
@@ -160,24 +160,33 @@ seed 42 的 `eval_only.py` 结果与 best epoch 的 valid 指标逐位一致，�
 
 `item_emb.npy` 是可由 `scripts/encode_items.py` 重建的中间数组，因此不进入 Git。
 
-### 待生成：量化、分析与冻结接口
+### 残差量化与码本质量
 
-以下文件尚未生成，不用计划值冒充结果：
+主设置均为 `L=3, K=256`；末位是按冲突组追加的确定性序号，不属于量化码本。
 
-| 计划产物 | 作用 | 状态 |
-|---|---|---|
-| `semantic_ids_kmeans.json` / `semantic_ids_rqvae.json` | RQ-Kmeans baseline 与 RQ-VAE 主方案的 4-token 语义 ID | ⬜ |
-| `saved/rq_kmeans_ml1m.npz` / `saved/rqvae_ml1m.pt` | 量化器参数与训练配置 | ⬜ |
-| `results/week3-4-semantic-id/codebook_stats.json` | 逐层利用率、困惑度和冲突率 | ⬜ |
-| `results/week3-4-semantic-id/figs/*.png` | 两种方法 × 三层的码字分布图 | ⬜ |
-| `grid_search.md` | `(L,K)` 网格对比 | ⬜ |
-| `prefix_consistency.md` / `prefix_samples.csv` | 前缀语义一致性与人工正反例 | ⬜ |
-| `codebook_report.md` | 阶段二汇总报告 | ⬜ |
-| `frozen/semantic_ids.json` | 第 5 周使用的最终物品语义 ID | ⬜ |
-| `frozen/train.semantic.jsonl` | 语义 token 训练集 | ⬜ |
-| `frozen/valid.semantic.jsonl` | 语义 token 验证集 | ⬜ |
-| `frozen/test.semantic.jsonl` | 语义 token 测试集 | ⬜ |
-| `frozen/token_vocab.json` / `frozen/meta.json` | token 映射、协议与输入产物哈希 | ⬜ |
+| 方法 | 重建 R² | 三层利用数 | 三层困惑度 | 消歧前冲突率 | 消歧后唯一 ID |
+|---|---:|---|---|---:|---:|
+| RQ-KMeans | — | 256 / 256 / 256 | 201.0 / 97.4 / 14.9 | 2.78% | 3,416 |
+| RQ-VAE | 0.6239 | 256 / 253 / 253 | 219.3 / 232.0 / 241.1 | 0.15% | 3,416 |
+
+RQ-VAE 使用“AE 预训练 → 潜空间残差 K-Means 初始化 → 联合训练”，修复了随机初始化造成的码本坍塌。完整过程和独立复验见 [`residual_quantization.md`](week3-4-semantic-id/residual_quantization.md)。
+
+### `(L,K)` 网格与冲突消解
+
+8 组主网格全部完成。主网格中 `RQ-VAE, L=3, K=256` 最优：R² 为 0.6245，消歧前冲突率 0.18%；追加序号后全部唯一。额外的 4 层纯 RQ-VAE 不使用序号消歧，也得到 3,416 个唯一 ID，R² 为 0.6566。详见 [`grid_search.md`](week3-4-semantic-id/grid_search.md)。
+
+### 仓库内产物
+
+| 路径 | 内容 |
+|---|---|
+| `semantic_ids_kmeans.json` / `semantic_ids_rqvae.json` | 阶段 3 正式语义 ID |
+| `rq_kmeans.log` / `rqvae_train.log` | 正式运行日志 |
+| `codebook_stats.json` / `figs/*.png` | 码本统计与 6 张频次图 |
+| `grid_search.md` | 8 组网格、4 层备选与结论 |
+| `grid/semantic_ids_*.json` | 9 组对照实验的语义 ID |
+| `grid/logs/*.log` / `grid_search.log` | 独立日志与合并日志 |
+
+二进制量化器、checkpoint 和可重建的 `item_emb.npy` 留在服务器 `~/genrec/`，不进入 Git。前缀语义一致性、最终方案冻结与阶段报告将在后续阶段完成。
 
 ## Week 5–7
 
@@ -200,3 +209,5 @@ results/
 | 训练基线 | `python scripts/run_baseline.py --model SASRec --config config/sasrec_ml1m.yaml --seed 42` |
 | checkpoint 复评 | `python scripts/eval_only.py --model_file saved/<checkpoint>.pth` |
 | 编码物品文本 | `python scripts/encode_items.py --model /data/LLMs/all-MiniLM-L6-v2 --out item_emb.npy` |
+| 构建语义 ID | `python scripts/build_semantic_id.py --config config/rqvae_ml1m.yaml --emb item_emb.npy --method rqvae --device cuda:0 --out semantic_ids_rqvae.json` |
+| 分析码本 | `python scripts/analyze_codebook.py --kmeans semantic_ids_kmeans.json --rqvae semantic_ids_rqvae.json --outdir results/week3-4-semantic-id` |
