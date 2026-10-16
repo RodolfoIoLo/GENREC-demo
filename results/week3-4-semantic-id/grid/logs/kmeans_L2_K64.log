@@ -1,0 +1,16 @@
+最终配置: {'config': 'config/rqvae_ml1m.yaml', 'emb': 'item_emb.npy', 'method': 'kmeans', 'in_dim': 384, 'n_levels': 2, 'codebook_size': 64, 'latent': 32, 'beta': 0.25, 'epochs': 2000, 'batch_size': 256, 'lr': 0.0001, 'pretrain_epochs': 200, 'pretrain_lr': 0.001, 'init_n_init': 10, 'min_utilization': 0.9, 'seed': 42, 'log_every': 100, 'device': 'cuda:1', 'checkpoint': None, 'no_dedup': False, 'out': 'results/week3-4-semantic-id/grid/semantic_ids_kmeans_L2_K64.json'}
+输入 (3416, 384) | norm mean=1.00000000
+  level 0: 用到 64/64 个码字
+  level 1: 用到 64/64 个码字
+[kmeans 消解前] 物品 3416|唯一 ID 1786|冲突率 0.4772
+  level 0: 利用率 64/64|困惑度 58.6
+  level 1: 利用率 64/64|困惑度 47.8
+[kmeans 消解后] 物品 3416|唯一 ID 3416|冲突率 0.0000
+  level 0: 利用率 64/64|困惑度 58.6
+  level 1: 利用率 64/64|困惑度 47.8
+  level 2: 利用率 11/64|困惑度 4.0  ← 消歧码,不是码本
+最大冲突组大小 = 11(第 4 位容量 64)
+saved results/week3-4-semantic-id/grid/semantic_ids_kmeans_L2_K64.json  形状 (3416, 3)
+real 73.09
+user 425.29
+sys 1770.56
