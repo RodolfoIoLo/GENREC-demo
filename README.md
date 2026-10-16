@@ -30,7 +30,7 @@ Toy Story → [37, 128, 5, 0]
 |---|---|---|
 | 第 1 周 | MovieLens 1M 下载,5-core 预处理,时间切分,统计分析 | ✅ 完成 |
 | 第 2 周 | SASRec 三随机种子,GRU4Rec 基线与 checkpoint 复评 | ✅ 完成 |
-| 第 3–4 周 | 文本编码,RQ-Kmeans / RQ-VAE,语义 ID 与码本分析 | 🚧 文本编码完成,量化待运行 |
+| 第 3–4 周 | 文本编码,RQ-Kmeans / RQ-VAE,语义 ID 与码本分析 | ✅️已完成 |
 | 第 5–6 周 | T5 类生成式推荐训练,全量排序评测与基线对比 | ⏳ 计划中 |
 | 第 7 周 | 冷启动 / 长尾改进,消融实验与结项报告 | ⏳ 计划中 |
 
@@ -109,7 +109,8 @@ repository/
 ├── README.md
 ├── requirements.txt
 ├── config/
-│   └── sasrec_ml1m.yaml
+│   ├── sasrec_ml1m.yaml
+│   └── rqvae_ml1m.yaml
 ├── scripts/
 │   ├── preprocess.py
 │   ├── stats.py
@@ -117,7 +118,9 @@ repository/
 │   ├── run_baseline.py
 │   ├── eval_only.py
 │   ├── export_item_freq.py
-│   └── encode_items.py
+│   ├── encode_items.py
+│   ├── build_semantic_id.py
+│   └── analyze_codebook.py
 ├── results/
 │   ├── README.md
 │   ├── week1-data-stats/
@@ -129,27 +132,55 @@ repository/
 │   │       ├── item_freq_hist.png
 │   │       ├── item_freq_loglog.png
 │   │       └── seq_len_hist.png
-│   └── week2-sasrec-baseline/
-│       ├── baseline_table.md
-│       ├── sasrec_s42.log
-│       ├── sasrec_s42_patch_test.log
-│       ├── sasrec_s43.log
-│       ├── sasrec_s44.log
-│       └── gru4rec_s42.log
+│   ├── week2-sasrec-baseline/
+│   │   ├── baseline_table.md
+│   │   ├── sasrec_s42.log
+│   │   ├── sasrec_s42_patch_test.log
+│   │   ├── sasrec_s43.log
+│   │   ├── sasrec_s44.log
+│   │   └── gru4rec_s42.log
+│   └── week3-4-semantic-id/
+│       ├── residual_quantization.md
+│       ├── grid_search.md
+│       ├── codebook_stats.json
+│       ├── semantic_ids_kmeans.json
+│       ├── semantic_ids_rqvae.json
+│       ├── rq_kmeans.log
+│       ├── rqvae_train.log
+│       ├── grid_search.log
+│       ├── figs/
+│       │   ├── util_kmeans_level0.png
+│       │   ├── util_kmeans_level1.png
+│       │   ├── util_kmeans_level2.png
+│       │   ├── util_rqvae_level0.png
+│       │   ├── util_rqvae_level1.png
+│       │   └── util_rqvae_level2.png
+│       └── grid/
+│           ├── semantic_ids_kmeans_L2_K64.json
+│           ├── semantic_ids_kmeans_L2_K256.json
+│           ├── semantic_ids_kmeans_L3_K64.json
+│           ├── semantic_ids_kmeans_L3_K256.json
+│           ├── semantic_ids_rqvae_L2_K64.json
+│           ├── semantic_ids_rqvae_L2_K256.json
+│           ├── semantic_ids_rqvae_L3_K64.json
+│           ├── semantic_ids_rqvae_L3_K256.json
+│           ├── semantic_ids_rqvae_L4_K256_no_dedup.json
+│           └── logs/
+│               ├── kmeans_L2_K64.log
+│               ├── kmeans_L2_K256.log
+│               ├── kmeans_L3_K64.log
+│               ├── kmeans_L3_K256.log
+│               ├── rqvae_L2_K64.log
+│               ├── rqvae_L2_K256.log
+│               ├── rqvae_L3_K64.log
+│               ├── rqvae_L3_K256.log
+│               └── rqvae_L4_K256_no_dedup.log
 └── note/
     ├── week0-生成式推荐_三阶段全链路.md
     ├── week1-真实数据实例说明.md
     ├── week2-前置知识-RecBole与基线模型.md
     ├── week3-前置知识-向量量化与语义标识符.md
-    ├── 09-15.md
-    ├── 09-16.md
-    ├── 09-17.md
-    ├── 09-21.md
-    ├── 09-22.md
-    ├── 09-23.md
-    ├── 10-10.md
-    ├── 10-13.md
-    └── 10-14.md
+    └── 按日期记录的实验笔记
 ```
 
 ### 2. 服务器
@@ -162,8 +193,11 @@ repository/
 ├── requirements.txt
 ├── item_freq.json
 ├── item_emb.npy
+├── semantic_ids_kmeans.json
+├── semantic_ids_rqvae.json
 ├── config/
-│   └── sasrec_ml1m.yaml
+│   ├── sasrec_ml1m.yaml
+│   └── rqvae_ml1m.yaml
 ├── scripts/
 │   ├── preprocess.py
 │   ├── stats.py
@@ -171,7 +205,9 @@ repository/
 │   ├── run_baseline.py
 │   ├── eval_only.py
 │   ├── export_item_freq.py
-│   └── encode_items.py
+│   ├── encode_items.py
+│   ├── build_semantic_id.py
+│   └── analyze_codebook.py
 ├── log/
 │   ├── GRU4Rec/
 │   │   └── GRU4Rec-ml-1m-Oct-15-2026_09-39-08-c5973e.log
@@ -181,16 +217,44 @@ repository/
 │       ├── SASRec-ml-1m-Oct-15-2026_13-00-11-6e006f.log
 │       └── SASRec-ml-1m-Oct-15-2026_17-48-15-37672d.log
 ├── results/
-│   ├── sasrec_0928_1916.log
-│   ├── eval_only_1010.log
+│   ├── sasrec_s42.log
+│   ├── sasrec_s42_patch_test.log
 │   ├── sasrec_s43.log
 │   ├── sasrec_s44.log
-│   └── gru4rec_s42.log
+│   ├── gru4rec_s42.log
+│   ├── rq_kmeans.log
+│   ├── rqvae_train.log
+│   ├── debug/
+│   └── week3-4-semantic-id/
+│       ├── residual_quantization.md
+│       ├── grid_search.md
+│       ├── grid_search.log
+│       ├── codebook_stats.json
+│       ├── figs/
+│       │   ├── util_kmeans_level0.png
+│       │   ├── util_kmeans_level1.png
+│       │   ├── util_kmeans_level2.png
+│       │   ├── util_rqvae_level0.png
+│       │   ├── util_rqvae_level1.png
+│       │   └── util_rqvae_level2.png
+│       └── grid/
+│           ├── semantic_ids_kmeans_L2_K64.json
+│           ├── semantic_ids_kmeans_L2_K256.json
+│           ├── semantic_ids_kmeans_L3_K64.json
+│           ├── semantic_ids_kmeans_L3_K256.json
+│           ├── semantic_ids_rqvae_L2_K64.json
+│           ├── semantic_ids_rqvae_L2_K256.json
+│           ├── semantic_ids_rqvae_L3_K64.json
+│           ├── semantic_ids_rqvae_L3_K256.json
+│           ├── semantic_ids_rqvae_L4_K256_no_dedup.json
+│           └── logs/（对应 9 组独立日志）
 ├── saved/
 │   ├── SASRec-Sep-28-2026_19-18-04.pth
 │   ├── SASRec-Oct-15-2026_13-00-52.pth
 │   ├── SASRec-Oct-15-2026_17-48-40.pth
-│   └── GRU4Rec-Oct-15-2026_09-39-37.pth
+│   ├── GRU4Rec-Oct-15-2026_09-39-37.pth
+│   ├── rq_kmeans_ml1m.npz
+│   └── rqvae_ml1m.pt
 └── log_tensorboard/
     ├── SASRec-ml-1m-Sep-28-2026_19-17-25-dbfc42/
     │   ├── events.out.tfevents.1790594284.amax510.2957982.0
